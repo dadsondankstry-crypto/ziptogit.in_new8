@@ -1,0 +1,69 @@
+name: Compilar APK Android - Nine Kingdom
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+
+    steps:
+      - name: Baixar arquivos do projeto
+        uses: actions/checkout@v4
+
+      - name: Configurar Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Configurar Android SDK
+        uses: android-actions/setup-android@v4
+
+      - name: Instalar Android API 36 e Build Tools
+        run: |
+          sdkmanager --install "platforms;android-36" "build-tools;35.0.0" "platform-tools"
+
+      - name: Configurar Gradle 8.13
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.13'
+
+      - name: Verificar arquivos do jogo
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s app/src/main/assets/game.html || { echo "ERRO: game.html ausente ou vazio"; exit 1; }
+          test -s app/src/main/AndroidManifest.xml || { echo "ERRO: Manifest ausente"; exit 1; }
+          test -s app/src/main/java/com/ninekingdom/mobile/MainActivity.java || { echo "ERRO: MainActivity ausente"; exit 1; }
+
+      - name: Compilar APK de depuração
+        run: gradle --no-daemon --stacktrace :app:assembleDebug
+
+      - name: Confirmar APK e preparar artefato
+        shell: bash
+        run: |
+          set -euo pipefail
+          SOURCE_APK="app/build/outputs/apk/debug/app-debug.apk"
+          if [ ! -s "$SOURCE_APK" ]; then
+            echo "ERRO: o Gradle terminou sem produzir app-debug.apk"
+            exit 1
+          fi
+          mkdir -p dist
+          cp "$SOURCE_APK" dist/nine-kingdom-v8-debug.apk
+          ls -lh dist/nine-kingdom-v8-debug.apk
+
+      - name: Disponibilizar o APK para baixar
+        uses: actions/upload-artifact@v4
+        with:
+          name: nine-kingdom-v8-android-debug-apk
+          path: dist/nine-kingdom-v8-debug.apk
+          if-no-files-found: error
+          retention-days: 30
