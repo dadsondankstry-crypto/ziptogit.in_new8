@@ -1,0 +1,5 @@
+A única modificação feita no JavaScript do jogo é em exportSave():
+- No APK, exporta o JSON por meio do seletor nativo de documentos (Storage Access Framework), sem exigir permissões.
+- No navegador normal, preserva o comportamento anterior de baixar blob como arquivo.
+- As missões, mapa, NPCs, combate, inventário, sprites e dados permanecem idênticos.
+- HTML original sem alteração: original/nine_kingdom_v80_android.html
