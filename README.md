@@ -1,103 +1,40 @@
-# 👑 NINE KINGDOM 8.0 — PROJETO APK ANDROID
+# Explorador ZIP 2.0 — pacote para GitHub Actions / ZiptoGit
 
-Este ZIP contém um **projeto Android completo na raiz**, preparado para o fluxo
-**Android → ZiptoGit → GitHub Actions → baixar APK**. O jogo existente é o
-`nine_kingdom_v80_android.html` enviado pelo usuário, sem reorganização de mapa,
-NPCs, interface ou inventário. O empacotamento **não realiza as mudanças de design**
-discutidas em outra etapa da conversa.
+Projeto Android nativo em Java. **Arquivos na raiz do ZIP**, inclusive `.github/workflows/main.yml`; sem pasta principal externa.
 
-## Escolha técnica
+## Incluído nesta versão experimental
+- Navegação em diretórios autorizados pelo seletor do Android; restauração da última pasta quando a autorização persistir.
+- Exibir/ocultar arquivos iniciados por ponto, inclusive `.github`.
+- Abrir e navegar arquivos ZIP sem extrair; extrair ZIP inteiro em subpasta com limites de segurança.
+- Seleção múltipla (toque prolongado), selecionar todos, inverter, desmarcar e selecionar por extensão.
+- Criar pastas e arquivos vazios, renomear, excluir com confirmação e mostrar detalhes (quando fornecidos pelo provedor).
+- Copiar pelo DocumentsContract.copyDocument e mover pelo DocumentsContract.moveDocument, ambos **dependentes do provedor Android**. Não se faz cópia+exclusão como alternativa ao MOVE.
+- Busca por nome na pasta atual; classificação por nome, tipo, tamanho e data.
+- Criar ZIP com arquivos **e pastas recursivamente**, incluindo entradas ocultas acessíveis. Opções ZIP sem pasta principal (útil para ZiptoGit) ou com pasta `Projeto/`.
+- Favoritos básicos de árvores autorizadas e histórico da sessão (histórico informativo).
+- Compartilhar arquivos pelo seletor Android; visualizar imagens comuns; abrir/editar arquivos de texto pequenos (limite de 1 MB), confirmar gravação ou salvar cópia.
+- Ícone próprio; offline; identificador do app preservado e versão 2.0.0 / versionCode 3.
 
-- **HTML/CSS/JavaScript original + WebView Android + Java nativo.** O jogo já está
-  construído em Canvas e JavaScript. Reescrever em Kotlin, Flutter ou Godot
-  mudaria a lógica e criaria risco desnecessário de regressão.
-- `WebViewAssetLoader` abre o conteúdo interno do APK em origem HTTPS local,
-  permitindo `localStorage` sem exigir internet ou servidor.
-- Java nativo abre o seletor de documentos do Android para importar e exportar
-  o backup JSON, sem pedir permissão ampla de armazenamento.
-- **Offline:** o jogo, gráficos, menus e lógica estão embutidos no APK. Não há
-  URLs externas no HTML original. O GitHub Actions precisa de internet para
-  **construir** o APK; o jogo instalado não precisa de conexão.
-- Requisitos: **Android 6.0/API 23 ou superior**, WebView do sistema funcional.
-  Para melhor desempenho, mantenha Android System WebView/Chrome atualizado.
-- Configuração do build: AGP 8.13.2, Gradle 8.13, Java 17, compileSdk 36,
-  targetSdk 36, minSdk 23, androidx.webkit 1.15.0.
-- Aplicativo `Nine Kingdom`, ID `com.ninekingdom.mobile`, `versionCode=80`,
-  `versionName=8.0`.
+## Recursos do planejamento que AINDA NÃO estão completos
+- **Painel duplo real** de navegação, recortar/colar interno, navegação pelo histórico, busca recursiva e histórico persistente de operações.
+- **Progressos/cancelamento em tempo real** de todas as operações, verificação automática da integridade depois do ZIP, prévia detalhada da árvore antes de compactar, extração seletiva de entradas dentro do ZIP.
+- Visualização integrada de PDF/vídeo, miniaturas em grade, editor avançado com destaque de sintaxe e comparador de arquivos.
+- Lixeira/recuperação; regras de cópia/movimentação em múltiplos provedores e operações de pastas em provedores que não as suportam.
 
-## 📥 Como gerar o APK sem computador
+## Uso rápido
+1. Toque em **Pasta** e conceda acesso a uma pasta. Pressione e segure itens para marcá-los; toque normalmente para abrir pasta/ZIP.
+2. **☰ Arquivos**: criar, renomear, copiar, mover, excluir, ver detalhes, compartilhar e editar texto.
+3. **🗜 ZIP+**: selecione o modo sem pasta principal (ZiptoGit) ou com pasta `Projeto/`, selecione pasta de destino. A própria compactação percorre as subpastas autorizadas.
+4. **🔎 Buscar** filtra o diretório atual; deixe a busca vazia para listar tudo. **↕ Ordem** e **☑ Seleção** controlam a lista.
+5. **★ Locais** guarda favoritos de pastas-raiz autorizadas. A última pasta é restaurada quando a permissão persistente ainda estiver válida.
 
-1. No celular, crie um repositório GitHub vazio na branch `main` (sem README
-   automático, se o ZiptoGit publicar melhor assim).
-2. Entre no ZiptoGit, escolha esse repositório e envie **o ZIP ORIGINAL,
-   sem extrair nem recompactar**. Os arquivos devem aparecer diretamente na
-   raiz do repositório (`app/`, `build.gradle`, `.github/` ...).
-3. Confira no GitHub se o arquivo `.github/workflows/main.yml` está presente.
-4. Abra **Actions** e procure **Compilar APK Android - Nine Kingdom**. Se o
-   envio não iniciou o workflow, abra-o e toque em **Run workflow** (`main`).
-5. Aguarde o job `build-apk` concluir com indicador verde. Abra a execução,
-   em **Artifacts**, baixe `nine-kingdom-v8-android-debug-apk`.
-6. O GitHub entrega um ZIP de artefato; abra ou extraia **esse ZIP de artefato**
-   (não o ZIP original do projeto). Encontre `nine-kingdom-v8-debug.apk`.
-7. Instale o APK no Android. O sistema pode exigir autorizar a instalação
-   por este navegador/gerenciador de arquivos. Abra o jogo, teste os botões,
-   controle por toque, salvar, exportar JSON e importar JSON.
+## Limites e segurança
+- Use **arquivos de teste**, principalmente para exclusão, edição e movimentação. A exclusão pode ser definitiva.
+- O Storage Access Framework restringe partes do armazenamento. Copiar/mover/renomear pastas pode ser recusado pelo provedor; datas também dependem dele.
+- Não há garantia de que providers preservem datas ao mover ou copiar. Nenhuma permissão irrestrita de armazenamento é solicitada.
+- ZIP: limite de aproximadamente 1 GB na compactação; limites de profundidade e quantidade de itens. Extração também usa limites de tamanho e protege contra `../`.
+- Nova compilação GitHub Actions pode gerar assinatura de debug diferente; talvez seja necessário desinstalar a versão antiga. Não remova dados de que precise.
+- **Não compilado nem testado em aparelho nesta sessão**. Se o GitHub Actions falhar, consulte a etapa vermelha para a mensagem exata.
 
-**Contingência para arquivo oculto `.github`**: se o ZiptoGit não publicar
-`.github/workflows/main.yml`, no site do GitHub abra o repositório, toque em
-**Add file → Create new file**, digite o caminho completo
-`.github/workflows/main.yml` e cole o conteúdo do arquivo avulso `main.yml`
-fornecido junto com este ZIP. Faça commit na branch `main`. Isso também dispara
-um workflow. Se a interface não permitir diretórios, digite todo o caminho
-no campo de nome do novo arquivo; o GitHub cria as pastas.
-
-## Arquivos e pastas
-
-- `.github/workflows/main.yml`: workflow automático por `push` em `main` e manual.
-- `app/src/main/assets/game.html`: jogo 8.0 incorporado, com uma adaptação
-  mínima no método `exportSave()` para chamar o seletor de documentos Android.
-- `original/nine_kingdom_v80_android.html`: HTML **intacto** como referência.
-- `app/src/main/java/com/ninekingdom/mobile/MainActivity.java`: WebView, pontes
-  de backup JSON, diálogo de saída, erros e caixas de confirmação das missões.
-- `app/src/main/res/drawable/ic_launcher.xml`: ícone simples de coroa.
-- `app/src/main/AndroidManifest.xml`: configuração do aplicativo, sem permissões.
-- `app/build.gradle`, `build.gradle`, `settings.gradle`: build Gradle.
-
-## 💾 Backup e salvamentos
-
-- O jogo mantém o progresso via `localStorage` do WebView no armazenamento
-  privado do aplicativo; não precisa de conta nem de internet.
-- **Exportar**: toque em Backup (ou Bolsa → Baixar salvamento) e escolha pelo
-  seletor Android o local/pasta e nome do arquivo JSON. O Android só autoriza
-  gravar **o arquivo escolhido pelo usuário**.
-- **Importar**: toque em Recuperar ou Bolsa → Importar arquivo e selecione um
-  JSON no seletor do Android. Leia a confirmação antes de substituir progresso.
-- Desinstalar/limpar dados do aplicativo **apaga** os salvamentos locais. Guarde
-  um backup JSON antes. Reinstalar em outro aparelho não transfere `localStorage`.
-- Nenhuma permissão `MANAGE_EXTERNAL_STORAGE`, internet ou acesso a toda a
-  galeria/arquivos é solicitada.
-
-## Versões e atualizações
-
-O APK `assembleDebug` é **de depuração** e assinado pelo ambiente de build.
-A assinatura debug gerada no GitHub Actions pode variar entre execuções;
-portanto o Android pode recusar uma atualização sobre APK anterior mesmo que
-`versionCode` aumente. **Exporte o backup JSON antes de trocar versão.**
-Para publicar ou atualizar regularmente sem desinstalar, configure futuramente
-um APK/AAB **release** com chave de assinatura persistente guardada em um
-cofre de segredos do GitHub, **nunca no ZIP/repositório**. A cada nova versão,
-aumente `versionCode` e mantenha `applicationId` e assinatura consistentes.
-
-## Limitações e testes
-
-- O presente projeto **foi preparado para compilar no GitHub Actions**. O APK
-  não foi compilado, instalado ou testado em um aparelho neste ambiente.
-- A execução verde do GitHub Actions confirma compilação, **não** a ausência
-  de bugs em execução. Teste em Android real (vertical/horizontal), sobretudo
-  toque/joystick, missões, sistema de arquivos e retomada do aplicativo.
-- O HTML pode conservar limitações visuais/funcionais do original V8.0.
-- `gradlew` não é necessário neste fluxo: a Action `gradle/actions/setup-gradle`
-  instala **Gradle 8.13** automaticamente no GitHub antes de rodar `gradle
-  :app:assembleDebug`.
-- Se um build falhar, copie o trecho vermelho do log em Actions e envie para
-  diagnóstico; a correção deverá vir como novo ZIP completo para ZiptoGit.
+## Compilar
+Envie o ZIP sem extrair ao ZiptoGit. Confirme que `.github/workflows/main.yml` está no repositório. Na aba **Actions**, abra a execução; depois **Artifacts → ExploradorZIP-APK**, baixe o ZIP do artefato e extraia `app-debug.apk`. Se `.github` não for importado, crie manualmente `.github/workflows/main.yml` com o conteúdo de `YAML_PARA_COPIAR.yml`.

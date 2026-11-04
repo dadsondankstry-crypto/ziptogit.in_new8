@@ -1,19 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- Jogo 100% local: nenhuma permissão de rede, mídia ou armazenamento. -->
     <application
         android:allowBackup="false"
-        android:fullBackupContent="false"
-        android:label="Nine Kingdom"
-        android:icon="@drawable/ic_launcher"
-        android:roundIcon="@drawable/ic_launcher"
-        android:theme="@style/Theme.NineKingdom"
-        android:usesCleartextTraffic="false"
-        android:supportsRtl="true">
-        <activity
-            android:name=".MainActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize"
-            android:exported="true">
+        android:label="Explorador ZIP"
+        android:icon="@mipmap/ic_launcher"
+        android:theme="@android:style/Theme.Material.Light.NoActionBar"
+        android:usesCleartextTraffic="false">
+        <activity android:name=".MainActivity" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
